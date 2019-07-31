@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+cd "`dirname "$0"`/.."
+
+docker run --runtime=nvidia \
+	--rm \
+	-it \
+	-v "$(pwd)/nbs/":/fastai \
+	keithmattix/fastai-coreos \
+	bash
