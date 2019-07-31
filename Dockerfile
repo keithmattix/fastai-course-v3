@@ -1,12 +1,13 @@
 # ==================================================================
 # module list
 # ------------------------------------------------------------------
-# python        3.7.4  (apt)
+# python        3.7    (apt)
+# jupyter       latest (pip)
 # pytorch       latest (pip)
 # tensorflow    latest (pip)
 # ==================================================================
 
-FROM ubuntu:18.04
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
 ENV LANG C.UTF-8
 RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
@@ -29,6 +30,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         wget \
         git \
         vim \
+        libssl-dev \
         curl \
         unzip \
         unrar \
@@ -49,15 +51,15 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-        python3.7.4 \
-        python3.7.4-dev \
+        python3.7 \
+        python3.7-dev \
         python3-distutils-extra \
         && \
     wget -O ~/get-pip.py \
         https://bootstrap.pypa.io/get-pip.py && \
-    python3.7.4 ~/get-pip.py && \
-    ln -s /usr/bin/python3.7.4 /usr/local/bin/python3 && \
-    ln -s /usr/bin/python3.7.4 /usr/local/bin/python && \
+    python3.7 ~/get-pip.py && \
+    ln -s /usr/bin/python3.7 /usr/local/bin/python3 && \
+    ln -s /usr/bin/python3.7 /usr/local/bin/python && \
     $PIP_INSTALL \
         setuptools \
         && \
@@ -72,6 +74,14 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         && \
 
 # ==================================================================
+# jupyter
+# ------------------------------------------------------------------
+
+    $PIP_INSTALL \
+        jupyter \
+        && \
+
+# ==================================================================
 # pytorch
 # ------------------------------------------------------------------
 
@@ -83,12 +93,13 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         pyyaml \
         typing \
     	torch \
+        fastai \
         && \
     $PIP_INSTALL \
     "git+https://github.com/pytorch/vision.git" && \
     $PIP_INSTALL \
         torch_nightly -f \
-        https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html \
+        https://download.pytorch.org/whl/nightly/cu100/torch_nightly.html \
         && \
 
 # ==================================================================
@@ -96,7 +107,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
 # ------------------------------------------------------------------
 
     $PIP_INSTALL \
-        tf-nightly-2.0-preview \
+        tf-nightly-gpu-2.0-preview \
         && \
 
 # ==================================================================
@@ -108,4 +119,4 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
 
-EXPOSE 6006
+EXPOSE 8888 6006
